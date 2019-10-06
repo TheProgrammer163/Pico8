@@ -3,12 +3,14 @@ version 18
 __lua__
 --main
 function _init()
+ entities:load()
  map_setup()
  entities:load()
  make_player()
 end
 
 function _update()
+ entities:update()
  player_update()
  camera_update()
 end
@@ -141,10 +143,28 @@ function draw_player()
 end
 -->8
 --camera
+view = {
+ x = 0,
+ y = 0,
+ --target, targetx, targety
+ target = -1,
+ tx = 0,
+ ty = 0
+}
 
-function camera_update()
- local x = flr(p.x) - 64 + 4
- local y = flr(p.y) - 64 + 4
+function view:update_discrete()
+ if self.target != -1 then
+  self.tx = flr(self.target.x)
+  self.ty = flr(self.target.y)
+ end
+ self.x += sgn(self.tx-self.x)
+ self.y += sgn(self.ty-self.y)
+end
+
+function view:update()
+ local t = self.target
+ local x = flr(t.x) - 64 + 4
+ local y = flr(t.y) - 64 + 4
  x = max(0,x)
  y = max(0,y)
  camera(x,y)
@@ -184,16 +204,26 @@ function entities:load()
 	end
 	
 	function self:new()
-	 local e = {
-	  x = 0,
-	  y = 0,
-	  ydraw = 0,
-	  state = 0,
-	  sprite = 1,
-	  health = 3,
-	 }
-	 
-	 return e
+	
+	 local freeindex = self:getfree()
+	 if (freeindex == -1) then
+	  return -1
+	 else
+		 local e = {
+		  x = 0,
+		  y = 0,
+		  xvel = 0,
+		  yvel = 0,
+		  xinput = 0,
+		  yinput = 0,
+		  state = 0,
+		  type = -1,
+		  sprite = 1,
+		  health = 3,
+		 }
+		 self[i] = e
+		 return e
+	 end
 	end
 	
 	function self:update()
