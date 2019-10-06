@@ -4,6 +4,7 @@ __lua__
 --main
 function _init()
  map_setup()
+ entities:load()
  make_player()
 end
 
@@ -151,42 +152,63 @@ end
 -->8
 --entities
 entities = {}
+entities.max = 10
 
-for i = 1,10 do
- entities[i] = -1
-end
+function entities:load()
 
-function entities:getcount()
- local count = 0
- for i = 1,10 do
-	 if (entities[i] != -1) count+=1
+	for i = 1,self.max do
+	 self[i] = -1
 	end
-	return count
-end
 
-function entities:new()
- local e = {
-  x = 0,
-  y = 0,
-  ydraw = 0,
-  state = 0,
-  sprite = 1,
-  health = 3
- }
- 
- return e
-end
+	function self:getcount()
+	 local count = 0
+	 for i = 1,self.max do
+		 if (self[i] != -1) count+=1
+		end
+		return count
+	end
+	
+	function self:getfree()
+	 --find an available index
+	 for i = 1,self.max do
+		 if (self[i] == -1) then 
+		  return i
+		 end
+		end
+		return -1
+	end
+	
+	function self:delete(index)
+	 local e = self[i]
+	 self[i] = -1
+	end
+	
+	function self:new()
+	 local e = {
+	  x = 0,
+	  y = 0,
+	  ydraw = 0,
+	  state = 0,
+	  sprite = 1,
+	  health = 3,
+	 }
+	 
+	 return e
+	end
+	
+	function self:update()
+	 for e in pairs(self) do
+	  e:update()
+	 end
+	end
+	
+	function self:draw()
+	 for e in pairs(self) do
+	  e:draw()
+	 end
+	end
 
-function entities:update()
- for e in pairs(self) do
-  e:update()
- end
-end
 
-function entities:draw()
- for e in pairs(self) do
-  e:draw()
- end
 end
 __gfx__
 00000000bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb3bbbbbbbbbbbbbbbbbbb00bb000000000000000000000000cccccccccccccccccccccccccccccccc00000000
